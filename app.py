@@ -38,18 +38,29 @@ def load_csv(file_path):
 # 데이터 로드
 df = load_csv(kiwoom_hitter_path)
 columns_to_keep = ['선수명', '팀명', '타율', '경기', '타수', '홈런', '득점', '장타율', '출루율', '득점권타율', '고의4구', '희생플라이', '희생번트']
-df = df[columns_to_keep]
+try:
+    df = df[columns_to_keep]
+except KeyError as e:
+    st.error(f"Column missing in kiwoom_hitter data: {e}")
+    st.stop()
 
 df3 = load_csv(kiwoom_runner_path)
-df3 = df3[['선수명', '도루허용', '도루저지']]
+try:
+    df3 = df3[['선수명', '도루허용', '도루저지']]
+except KeyError as e:
+    st.error(f"Column missing in kiwoom_runner data: {e}")
+    st.stop()
 df = pd.merge(df, df3, on='선수명', how='left')
 
 df5 = load_csv(kiwoom_defense_path)
-
-df5['수비이닝'] = pd.to_numeric(df5['수비이닝'], errors='coerce')
-df5['수비승리기여도'] = pd.to_numeric(df5['수비승리기여도'], errors='coerce')
-df5['평균대비수비득점기여'] = pd.to_numeric(df5['평균대비수비득점기여'], errors='coerce')
-df5['포지션'] = df5['포지션'].fillna('').astype(str)
+try:
+    df5['수비이닝'] = pd.to_numeric(df5['수비이닝'], errors='coerce')
+    df5['수비승리기여도'] = pd.to_numeric(df5['수비승리기여도'], errors='coerce')
+    df5['평균대비수비득점기여'] = pd.to_numeric(df5['평균대비수비득점기여'], errors='coerce')
+    df5['포지션'] = df5['포지션'].fillna('').astype(str)
+except KeyError as e:
+    st.error(f"Column missing in kiwoom_defense data: {e}")
+    st.stop()
 
 def aggregate_positions(group):
     sorted_positions = group.sort_values(by='수비이닝', ascending=False)
@@ -79,7 +90,11 @@ df2 = load_csv(kiwoom_batting_order_path)
 filtered_names = df['선수명'].unique()
 df2 = df2[df2['선수명'].isin(filtered_names)]
 df2['1루타'] = df2['안타'] - df2['2루타'] - df2['3루타'] - df2['홈런']
-df2 = pd.merge(df2, df[['선수명', '도루허용', '도루저지', '고의4구', '희생플라이', '희생번트', '수비승리기여도', '득점권타율']], on='선수명', how='left')
+try:
+    df2 = pd.merge(df2, df[['선수명', '도루허용', '도루저지', '고의4구', '희생플라이', '희생번트', '수비승리기여도', '득점권타율']], on='선수명', how='left')
+except KeyError as e:
+    st.error(f"Column missing during merge: {e}")
+    st.stop()
 
 def calculate_XR(row):
     XR = (row['1루타'] * 0.5 +
