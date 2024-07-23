@@ -216,6 +216,13 @@ infielders = filter_by_position(filtered_df, '1루수|2루수|3루수|유격수'
 final_candidates = pd.concat([catcher, outfielders, infielders]).drop_duplicates()
 second_hitter_1 = final_candidates.nlargest(1, '2번타자 합산 지표')
 
+second_hitter_names = second_hitter_1['선수명'].values
+filtered_df2 = df2[df2['선수명'].isin(second_hitter_names)]
+filtered_df2 = filtered_df2[filtered_df2['타순'].isin(['1번'])]
+second_hitter = filtered_df2
+second_hitter_1_position = second_hitter_1[['선수명', '포지션']]
+second_hitter = pd.merge(second_hitter, second_hitter_1_position, on='선수명', how='left')
+
 df[['출루율_표준화', '도루_표준화']] = scaler.fit_transform(df[['출루율', '도루허용']])
 df['1번타자 합산 지표'] = df['출루율_표준화']*0.35 + df['도루_표준화']*0.33
 exclude_names = center_hitters['선수명'].tolist() + second_hitter_1['선수명'].tolist()
@@ -291,6 +298,9 @@ bottom_hitters = filtered_df2
 bottom_hitters_1_position = bottom_hitters_1[['선수명', '포지션']]
 bottom_hitters = pd.merge(bottom_hitters, bottom_hitters_1_position, on='선수명', how='left')
 bottom_per_player = filtered_df2.groupby('선수명')['타순'].apply(list).reset_index()
+
+df = pd.concat([first_hitter, second_hitter], ignore_index=True)
+
 
 players = center_per_player.set_index('선수명')['타순'].to_dict()
 possible_orders = list(itertools.product(*players.values()))
@@ -390,7 +400,7 @@ selected_columns = ['선수명', '팀명', '타율', '타수', '출루율', '장
 best_lineup_df = best_lineup_df[selected_columns]
 
 # 각 타순에 맞는 9명만 선택
-best_lineup_df = best_lineup_df.head(9)
+# est_lineup_df = best_lineup_df.head(9)
 
 # Streamlit 앱
 st.title('키움 베스트 라인업')
@@ -398,3 +408,5 @@ st.write(f'data update: {current_date}')
 st.write('베스트 라인업:')
 st.write(best_lineup_df)
 st.write(f'예상 추정 득점: {best_score}')
+
+# python -m streamlit run "C:\python\퍼팩트게임_ver2\app.py"
