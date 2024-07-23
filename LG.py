@@ -406,4 +406,6 @@ st.write('베스트 라인업:')
 st.write(best_lineup_df)
 st.write(f'예상 추정 득점: {best_score}')
 
-# python -m streamlit run "C:\python\퍼팩트게임_ver2\app.py"
+# 뒤로가기 버튼 추가
+if st.button('뒤로가기'):
+    st.markdown('<meta http-equiv="refresh" content="0; url=https://baseballlineuppredictionver2-hmsosuyranfibkqkyvv8w8.streamlit.app/" />', unsafe_allow_html=True)

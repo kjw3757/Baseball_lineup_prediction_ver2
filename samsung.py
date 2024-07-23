@@ -399,7 +399,6 @@ best_lineup_df.index = range(1, len(best_lineup_df) + 1)
 selected_columns = ['선수명', '팀명', '타율', '타수', '출루율', '장타율', '득점권타율', '홈런', '수비승리기여도', '도루허용', '포지션']
 best_lineup_df = best_lineup_df[selected_columns]
 
-
 # Streamlit 앱
 st.title('삼성 베스트 라인업')
 st.write(f'data update: {current_date}')
@@ -407,4 +406,6 @@ st.write('베스트 라인업:')
 st.write(best_lineup_df)
 st.write(f'예상 추정 득점: {best_score}')
 
-# python -m streamlit run "C:\python\퍼팩트게임_ver2\app.py"
+# 뒤로가기 버튼 추가
+if st.button('뒤로가기'):
+    st.markdown('<meta http-equiv="refresh" content="0; url=https://baseballlineuppredictionver2-hmsosuyranfibkqkyvv8w8.streamlit.app/" />', unsafe_allow_html=True)
