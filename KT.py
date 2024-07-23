@@ -85,13 +85,14 @@ df = pd.merge(df, df5, on='선수명', how='left')
 df = df.dropna()
 df = df[df['경기'] >= 10]
 df = df[df['타수'] >= 31]
+player_list_df = df # 끝에있는 df랑 구분하기 위해
 
 df2 = load_csv(KT_batting_order_path)
 filtered_names = df['선수명'].unique()
 df2 = df2[df2['선수명'].isin(filtered_names)]
 df2['1루타'] = df2['안타'] - df2['2루타'] - df2['3루타'] - df2['홈런']
 try:
-    df2 = pd.merge(df2, df[['선수명', '도루허용', '도루저지', '고의4구', '희생플라이', '희생번트', '수비승리기여도', '득점권타율']], on='선수명', how='left')
+    df2 = pd.merge(df2, player_list_df[['선수명', '도루허용', '도루저지', '고의4구', '희생플라이', '희생번트', '수비승리기여도', '득점권타율']], on='선수명', how='left')
 except KeyError as e:
     st.error(f"Column missing during merge: {e}")
     st.stop()
@@ -398,6 +399,16 @@ best_lineup_df.index = range(1, len(best_lineup_df) + 1)
 # 필요한 컬럼만 선택
 selected_columns = ['선수명', '팀명', '타율', '타수', '출루율', '장타율', '득점권타율', '홈런', '수비승리기여도', '도루허용', '포지션']
 best_lineup_df = best_lineup_df[selected_columns]
+
+# Merge best_lineup_df with player_list_df to update statistics
+best_lineup_df = best_lineup_df[['선수명', '팀명']].merge(
+    player_list_df[selected_columns],
+    on=['선수명', '팀명'],
+    how='left'
+    )
+
+# Reset index to start from 1 instead of 0
+best_lineup_df.index = best_lineup_df.index + 1
 
 # Streamlit 앱
 st.title('KT 베스트 라인업')
